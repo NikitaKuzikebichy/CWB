@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Parse/Parse.h>
+//#import <Parse/Parse.h>
+#import <FirebaseDatabase/FirebaseDatabase.h>
 
 static NSString *CarParkIONOrchard = @"202A TAMPINES ST 21";
 static NSString *CarParkTakashimaya = @"Takashimaya";
@@ -27,8 +28,9 @@ typedef enum CarParkType
     CarParkTypeVacuum,
 }CarParkType;
 
-@interface CarPark : PFObject <PFSubclassing>
+@interface CarPark : NSObject//FIRDatabaseReference//NSObject//PFObject <PFSubclassing>
 {
+    
 }
 
 @property (nonatomic, assign) int ID, lots, eta;
@@ -36,9 +38,10 @@ typedef enum CarParkType
 @property (nonatomic, strong) UIColor *color;
 @property (nonatomic, assign) float latitude, longitude, distance;
 @property (nonatomic, assign) BOOL whetherCarWash, whetherValetParking, whetherSurePark;
+@property (nonatomic) NSMutableArray* carparkArray;
 
 - (id)initWithName:(NSString *)aName andId:(int)carParkId andEta:(int)aEta andLots:(int)aLots andLatitude:(float)aLatitude andLongitude:(float)aLongitude andWhetherCarWash:(BOOL)aWhetherCarWash andWhetherValetParking:(BOOL)aWhetherValetParking andWhetherSurePark:(BOOL)aWhetherSurePark;
-- (NSString *) getDetailLabelText;  
+- (NSString *) getDetailLabelText;
 - (NSString *) getOccupancyText;
 - (NSComparisonResult)compareDistance:(CarPark *)otherObject;
 - (UIColor *) getParkingAvailabilityColorForHours:(int) hours andWhetherHalfPast:(BOOL)whetherHalfPast;

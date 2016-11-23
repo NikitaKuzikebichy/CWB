@@ -10,6 +10,8 @@
 #import "SignInViewController.h"
 #import "CarPark.h"
 
+#import <FirebaseDatabase/FirebaseDatabase.h>
+
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -18,18 +20,19 @@
 {
     // Override point for customization after application launch.
     
-//    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[SignInViewController alloc]initWithNibName:@"SignInViewController" bundle:[NSBundle mainBundle]]];
-
-    [CarPark registerSubclass];
-    [Parse setApplicationId:@"RG5ZDyqRMNFxdJTgkCE8e0CjDg5Va7FYDOztAaRl"
-                  clientKey:@"1yu2rfZbjHrxPJuwywq2HkKlF5fSO1RHFmnLUWsc"];
+    //    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[SignInViewController alloc]initWithNibName:@"SignInViewController" bundle:[NSBundle mainBundle]]];
+    
+    //    [CarPark registerSubclass];
+    //    [Parse setApplicationId:@"RG5ZDyqRMNFxdJTgkCE8e0CjDg5Va7FYDOztAaRl"
+    //                  clientKey:@"1yu2rfZbjHrxPJuwywq2HkKlF5fSO1RHFmnLUWsc"];
+    [FIRApp configure];
     
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
     [self.locationManager requestWhenInUseAuthorization];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-
+    
     return YES;
 }
 
@@ -77,7 +80,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 

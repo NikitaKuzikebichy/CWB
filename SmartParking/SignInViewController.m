@@ -11,7 +11,7 @@
 #import "AppDelegate.h"
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import <ParseFacebookUtils/PFFacebookUtils.h>
+//#import <ParseFacebookUtils/PFFacebookUtils.h>
 
 @interface SignInViewController ()
 {
@@ -117,56 +117,56 @@
 }
 
 - (IBAction)signInWithFacebookButtonClicked:(id)sender {
-    [PFFacebookUtils initializeFacebook];
-    NSArray *permissionsArray = @[@"email", @"user_about_me", @"user_birthday"];
-    
-    // Login PFUser using Facebook
-    [PFFacebookUtils logInWithPermissions:permissionsArray block:^(PFUser *user, NSError *error) {
-//        [_activityIndicator stopAnimating]; // Hide loading indicator
-        
-        if (!user) {
-            if (!error) {
-                NSLog(@"Uh oh. The user cancelled the Facebook login.");
-            } else {
-                NSLog(@"Uh oh. An error occurred: %@", error);
-            }
-        } else
-        {
-            [[AppDelegate getAppDelegate] setLoggedInUserName:[user.username capitalizedString]];
-            MasterViewController *masterViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"MasterViewController"];
-            [self.navigationController pushViewController:masterViewController animated:YES];
-            
-            NSString *requestPath = @"me/?fields=name,location,gender,birthday,relationship_status,picture,email,id";
-            
-            FBRequest *request = [[FBRequest alloc] initWithSession:[PFFacebookUtils session] graphPath:requestPath];
-            
-            [request startWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
-                if (!error) {
-                    NSDictionary *userData = (NSDictionary *)result; // The result is a dictionary
-                    
-                    NSString *name = [userData objectForKey:@"name"];
-                    
-                    NSString *email = [userData objectForKey:@"email"];
-                    
-                    NSString *sID = [userData objectForKey:@"id"];
-                    
-                    // get the FB user's profile image
-                    NSDictionary *dicFacebookPicture = [userData objectForKey:@"picture"];   
-                    NSDictionary *dicFacebookData = [dicFacebookPicture objectForKey:@"data"];       
-                    [[AppDelegate getAppDelegate] setLoggedInUserName:[name capitalizedString]];
-                    user[@"email"] = email;
-                    user[@"name"] = name;
-                    [user saveInBackground];
-                }
-            }];
-
-            if (user.isNew) {
-                NSLog(@"User with facebook signed up and logged in!");
-            } else {
-                NSLog(@"User with facebook logged in!");
-            }
-        }
-    }];
+//    [PFFacebookUtils initializeFacebook];
+//    NSArray *permissionsArray = @[@"email", @"user_about_me", @"user_birthday"];
+//    
+//    // Login PFUser using Facebook
+//    [PFFacebookUtils logInWithPermissions:permissionsArray block:^(PFUser *user, NSError *error) {
+////        [_activityIndicator stopAnimating]; // Hide loading indicator
+//        
+//        if (!user) {
+//            if (!error) {
+//                NSLog(@"Uh oh. The user cancelled the Facebook login.");
+//            } else {
+//                NSLog(@"Uh oh. An error occurred: %@", error);
+//            }
+//        } else
+//        {
+//            [[AppDelegate getAppDelegate] setLoggedInUserName:[user.username capitalizedString]];
+//            MasterViewController *masterViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"MasterViewController"];
+//            [self.navigationController pushViewController:masterViewController animated:YES];
+//            
+//            NSString *requestPath = @"me/?fields=name,location,gender,birthday,relationship_status,picture,email,id";
+//            
+//            FBRequest *request = [[FBRequest alloc] initWithSession:[PFFacebookUtils session] graphPath:requestPath];
+//            
+//            [request startWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+//                if (!error) {
+//                    NSDictionary *userData = (NSDictionary *)result; // The result is a dictionary
+//                    
+//                    NSString *name = [userData objectForKey:@"name"];
+//                    
+//                    NSString *email = [userData objectForKey:@"email"];
+//                    
+//                    NSString *sID = [userData objectForKey:@"id"];
+//                    
+//                    // get the FB user's profile image
+//                    NSDictionary *dicFacebookPicture = [userData objectForKey:@"picture"];   
+//                    NSDictionary *dicFacebookData = [dicFacebookPicture objectForKey:@"data"];       
+//                    [[AppDelegate getAppDelegate] setLoggedInUserName:[name capitalizedString]];
+//                    user[@"email"] = email;
+//                    user[@"name"] = name;
+//                    [user saveInBackground];
+//                }
+//            }];
+//
+//            if (user.isNew) {
+//                NSLog(@"User with facebook signed up and logged in!");
+//            } else {
+//                NSLog(@"User with facebook logged in!");
+//            }
+//        }
+//    }];
 }
 
 - (void) keyboardWillHide:(NSNotification*)note

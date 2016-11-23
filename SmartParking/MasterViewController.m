@@ -23,10 +23,11 @@
 #import "AppDelegate.h"
 #import "CarParkCell.h"
 #import "PreBookViewControllerViewController.h"
-#import <Parse/Parse.h>
+//#import <Parse/Parse.h>
 
 @interface MasterViewController () {
-    NSMutableArray *_carParks, *carParksUnsorted;
+    NSMutableArray *_carParks;
+    NSMutableArray* carParksUnsorted;
     BOOL whetherFirstLocationUpdate;
     BOOL whetherMapBeingShown;
 }
@@ -50,7 +51,7 @@
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-
+    
     [self.tableView deselectRowAtIndexPath:[self.tableView indexPathForSelectedRow] animated:YES];
 }
 
@@ -59,14 +60,14 @@
     
     [self.navigationController setNavigationBarHidden:false animated:YES];
     self.navigationItem.hidesBackButton = YES;
-
+    
     UIImageView *imgeView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"cwbsolutionsblack"]];
     imgeView.contentMode = UIViewContentModeScaleAspectFit;
     imgeView.frame = CGRectMake(0, 0, 200, 44);
     
     
     
-//    self.navigationItem.title = @"CWB Solutions";
+    //    self.navigationItem.title = @"CWB Solutions";
     self.navigationItem.titleView=imgeView;
     [self reloadAnnotationViews];
 }
@@ -107,13 +108,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    
+    // Do any additional setup after loading the view, typically from a nib.
     //self.navigationItem.leftBarButtonItem = self.editButtonItem;
-
+    
     //UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
     //self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
-
+    
     _manager = [[CLLocationManager alloc] init];
     _manager.delegate = self;
     [_manager requestWhenInUseAuthorization];
@@ -129,20 +131,55 @@
     self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
     [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], NSForegroundColorAttributeName,nil]];
     self.rightBarButtonItem.tintColor = [UIColor cwbYellowColor];
-
+    
     NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(refresh) userInfo:nil repeats:true];
     [timer fire];
 }
 
 
 - (void) refresh {
-    PFQuery *query = [PFQuery queryWithClassName:@"CarWashBay"];
-    query.limit = 1000;
+    FIRDatabaseReference *ref = [[FIRDatabase database] reference];
     
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
-        _carParks = [objects mutableCopy];
+    // This type of listener is not one time, and you need to cancel it to stop
+    // receiving updates.
+    [[[ref child:@"CarWashBay"] queryOrderedByKey] observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
+        
+        
+        
+        NSMutableDictionary* snapshotArray = [[NSMutableDictionary alloc] init];
+        snapshotArray = snapshot.value;
+        
+        
+        
+        if (_carParks != nil)
+        {
+            
+        }
+        else
+        {
+            _carParks = [[NSMutableArray alloc] init];
+            for (int i = 0; i < [snapshotArray count]; i++)
+            {
+                NSMutableDictionary* objArray = snapshotArray[[NSString stringWithFormat:@"object %d", i+1]];
+                CarPark* ourCarParks = [[CarPark alloc] initWithName:objArray[@"stName"]
+                                                               andId:i+1
+                                                              andEta:0
+                                                             andLots:0
+                                                         andLatitude:[objArray[@"locationGlatitude"] floatValue]
+                                                        andLongitude:[objArray[@"locationGlongitude"] floatValue]
+                                                   andWhetherCarWash:NO
+                                              andWhetherValetParking:NO
+                                                  andWhetherSurePark:NO];
+                [ourCarParks.carparkArray addObject:objArray];
+                [_carParks addObject:ourCarParks];
+            }
+        }
+        
+        
+        
         [self.tableView reloadData];
-        carParksUnsorted = [[NSMutableArray alloc] initWithArray:_carParks];
+        
+        carParksUnsorted = _carParks;//[[NSMutableArray alloc] initWithArray:_carParks];
         
         whetherFirstLocationUpdate = YES;
         whetherMapBeingShown = YES;
@@ -151,16 +188,16 @@
         
         self.mapView.region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(1.3042, 103.834444), MKCoordinateSpanMake(0.5, 0.3));
         
-        //        [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"skyblue.png"] forBarMetrics:UIBarMetricsDefault];
-        //        [[UIApplication sharedApplication]setStatusBarStyle:UIStatusBarStyleBlackOpaque];
         
         UIView *view = [[UIView alloc] init];
-        //[view setBackgroundColor:[UIColor colorWithRed:217.0/255.0 green:204.0/255.0 blue:185.0/255.0 alpha:1.0]];
         [view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
         
         [self.tableView setBackgroundView:view];
         [self reloadAnnotationViews];
+        
     }];
+    
+    
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -221,29 +258,30 @@
     cellTmp.secondImage.image = nil;
     cellTmp.thirdImage.image = nil;
     
-    if ([carPark[@"hasWater"] boolValue]) {
+    NSMutableDictionary* dictionary = [carPark.carparkArray objectAtIndex:0];
+    if ([dictionary[@"hasWater"] boolValue]) {
         
         cellTmp.firstImage.image = [UIImage imageNamed:@"Water_icon"];
-        if ([carPark[@"hasVacuum"] boolValue]) {
+        if ([dictionary[@"hasVacuum"] boolValue]) {
             cellTmp.secondImage.image = [UIImage imageNamed:@"Vacuum_icon"];
-            if ([carPark[@"hasJet"] boolValue]) {
+            if ([dictionary[@"hasJet"] boolValue]) {
                 cellTmp.thirdImage.image = [UIImage imageNamed:@"Vacuum_icon"];
             }
         }
-        else if ([carPark[@"hasJet"] boolValue]) {
+        else if ([dictionary[@"hasJet"] boolValue]) {
             cellTmp.secondImage.image = [UIImage imageNamed:@"Vacuum_icon"];
         }
     }
-    else if ([carPark[@"hasVacuum"] boolValue]) {
+    else if ([dictionary[@"hasVacuum"] boolValue]) {
         cellTmp.firstImage.image = [UIImage imageNamed:@"Vacuum_icon"];
-        if ([carPark[@"hasJet"] boolValue]) {
+        if ([dictionary[@"hasJet"] boolValue]) {
             cellTmp.secondImage.image = [UIImage imageNamed:@"Jet_icon"];
         }
     }
-    else if ([carPark[@"hasJet"] boolValue]) {
+    else if ([dictionary[@"hasJet"] boolValue]) {
         cellTmp.firstImage.image = [UIImage imageNamed:@"Jet_icon"];
     }
-
+    
     
     if (!carPark.whetherSurePark) {
         cellTmp.prebookButton.hidden = YES;
@@ -263,15 +301,15 @@
         [cell.prebookButton setBackgroundImage:[UIImage imageNamed:@"prebookArrowImage.png"] forState:UIControlStateNormal];
         [cell.prebookButton setBackgroundImage:[UIImage imageNamed:@"prebookArrowImageHighlighted.png"] forState:UIControlStateHighlighted];
         
-//        CALayer *layer = cell.prebookButton.layer;
+        //        CALayer *layer = cell.prebookButton.layer;
         //[layer setCornerRadius:3.0];
-//        [layer setBorderColor:[UIColor blackColor].CGColor];
-//        [layer setBorderWidth:1.0];
-//        [layer setMasksToBounds:YES];
+        //        [layer setBorderColor:[UIColor blackColor].CGColor];
+        //        [layer setBorderWidth:1.0];
+        //        [layer setMasksToBounds:YES];
         
         [cell.prebookButton addTarget:self action:@selector(preBookButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     }
-
+    
     if (indexPath.row == 0) {
         cell.nameLabel.text = @"Carpark";
         cell.availableLotsLabel.text = @"Bays";
@@ -293,14 +331,15 @@
     }
     
     CarPark *carPark = (CarPark *)[_carParks objectAtIndex:indexPath.row-1];
+    NSMutableDictionary* dictionary = [carPark.carparkArray objectAtIndex:0];
     NSString *name = carPark.name;
     cell.nameLabel.text = name;
-    cell.availableLotsLabel.text = [NSString stringWithFormat:@"%d", [carPark[@"noOfWashBays"] intValue]];
+    cell.availableLotsLabel.text = [NSString stringWithFormat:@"%d", [dictionary[@"noOfWashBays"] intValue]];
     [cell.availableLotsLabel setTextColor:carPark.color];
     cell.distanceLabel.text = [NSString stringWithFormat:@"%.1f km", [carPark distanceFromCurrentLocation]];
-
+    
     if (indexPath.row % 2 == 0) {
-//        [cell setBackgroundColor:[UIColor colorWithRed:217.0/255.0 green:204.0/255.0 blue:185.0/255.0 alpha:1.0]];
+        //        [cell setBackgroundColor:[UIColor colorWithRed:217.0/255.0 green:204.0/255.0 blue:185.0/255.0 alpha:1.0]];
         [cell setBackgroundColor:[UIColor colorWithRed:219.0/255.0 green:219.0/255.0 blue:206.0/255.0 alpha:1.0]];
     }
     else {
@@ -318,9 +357,9 @@
     if (indexPath.row == 0) {
         return 44.0;
     }
-//    if (!carPark.whetherSurePark) {
-//        return 44.0;
-//    }
+    //    if (!carPark.whetherSurePark) {
+    //        return 44.0;
+    //    }
     return 95.0;
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -331,7 +370,7 @@
 
 //- (NSString *) tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 //{
-//    
+//
 //}
 
 - (NSString *) tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -340,20 +379,20 @@
 }
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+ {
+ }
+ */
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

@@ -52,11 +52,10 @@
 		75C6FF491595ADEA002BF11A /* CarPark.m in Sources */ = {isa = PBXBuildFile; fileRef = 75C6FF481595ADEA002BF11A /* CarPark.m */; };
 		8B53075A1DD8DE48009E79CC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B5307591DD8DE48009E79CC /* GoogleService-Info.plist */; };
 		CE10E5381AE4824F00F8FF46 /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 75C6FF3D15959BA8002BF11A /* MasterViewController.m */; };
-		EC0963E9B89211B3CAE905D1 /* libPods-CWBSolutions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AF78CB9C030048EA10BD4A5 /* libPods-CWBSolutions.a */; };
+		F88A7A9A1573441232FC2810 /* Pods_CWBSolutions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB910826851448AA3F4D187 /* Pods_CWBSolutions.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6AF78CB9C030048EA10BD4A5 /* libPods-CWBSolutions.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CWBSolutions.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		751835301596BC3400898FEF /* PreBookViewControllerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreBookViewControllerViewController.h; sourceTree = "<group>"; };
 		751835311596BC3400898FEF /* PreBookViewControllerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreBookViewControllerViewController.m; sourceTree = "<group>"; };
 		751835321596BC3400898FEF /* PreBookViewControllerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreBookViewControllerViewController.xib; sourceTree = "<group>"; };
@@ -120,6 +119,7 @@
 		75C6FF481595ADEA002BF11A /* CarPark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CarPark.m; sourceTree = "<group>"; };
 		8AED8226BFB4754A4D56A8F6 /* Pods-CWBSolutions.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CWBSolutions.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CWBSolutions/Pods-CWBSolutions.debug.xcconfig"; sourceTree = "<group>"; };
 		8B5307591DD8DE48009E79CC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		8BB910826851448AA3F4D187 /* Pods_CWBSolutions.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CWBSolutions.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAF39D4844380D30D7E0C55D /* Pods-CWBSolutions.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CWBSolutions.release.xcconfig"; path = "Pods/Target Support Files/Pods-CWBSolutions/Pods-CWBSolutions.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -133,7 +133,7 @@
 				75C6FF2515959BA8002BF11A /* UIKit.framework in Frameworks */,
 				75C6FF2715959BA8002BF11A /* Foundation.framework in Frameworks */,
 				75C6FF2915959BA8002BF11A /* CoreGraphics.framework in Frameworks */,
-				EC0963E9B89211B3CAE905D1 /* libPods-CWBSolutions.a in Frameworks */,
+				F88A7A9A1573441232FC2810 /* Pods_CWBSolutions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,7 +214,7 @@
 				75C6FF2415959BA8002BF11A /* UIKit.framework */,
 				75C6FF2615959BA8002BF11A /* Foundation.framework */,
 				75C6FF2815959BA8002BF11A /* CoreGraphics.framework */,
-				6AF78CB9C030048EA10BD4A5 /* libPods-CWBSolutions.a */,
+				8BB910826851448AA3F4D187 /* Pods_CWBSolutions.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -308,7 +308,8 @@
 				ORGANIZATIONNAME = "CWB SOLUTIONS PTE LTD";
 				TargetAttributes = {
 					75C6FF1F15959BA8002BF11A = {
-						DevelopmentTeam = ZXFZUHNR8P;
+						DevelopmentTeam = JFH2EVWP3B;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -543,17 +544,19 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = BrandAsset;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = JFH2EVWP3B;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SmartParking/CWBSolutions-Prefix.pch";
 				INFOPLIST_FILE = "SmartParking/CWBSolutions-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/SmartParking/TestFlightSDK1.1\"",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = CWBSolutions;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "17eb4b99-8d1c-4e5d-8ce2-bf7313bd9b65";
+				PROVISIONING_PROFILE_SPECIFIER = AllPro_20160902;
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -567,17 +570,19 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = BrandAsset;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = JFH2EVWP3B;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SmartParking/CWBSolutions-Prefix.pch";
 				INFOPLIST_FILE = "SmartParking/CWBSolutions-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/SmartParking/TestFlightSDK1.1\"",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = CWBSolutions;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "17eb4b99-8d1c-4e5d-8ce2-bf7313bd9b65";
+				PROVISIONING_PROFILE_SPECIFIER = AllPro_20160902;
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
