@@ -415,7 +415,7 @@
     //    NSMutableDictionary* dictionaryFire = [[NSMutableDictionary alloc] init];
     //    [[[ref child:@"CarWashBay"] child:[NSString stringWithFormat:@"object %d", _selectedCarPark.ID]] setValue:dictionaryFire];
     
-    NSURL* url = [NSURL URLWithString:@"https://www.imonnit.com/xml/SensorSendControlCommand/Z3VydmFpbC5kaG90OjkxMTEwMzEx?sensorID=158120&relayIndex=1&state=2&seconds=1"]; //&relayIndex=0&state=2&seconds=1
+    NSURL* url = [NSURL URLWithString:@"https://www.imonnit.com/xml/SensorSendControlCommand/Z3VydmFpbC5kaG90OjkxMTEwMzEx?sensorID=158120&relayIndex=1&state=2&seconds=120"]; //&relayIndex=0&state=2&seconds=1
     NSURL* urlAuthToken = [NSURL URLWithString:@"https://www.imonnit.com/xml/GetAuthToken?username=gurvail.dhot&password=91110311"];
     NSURL* urllogon = [NSURL URLWithString:@"https://www.imonnit.com/xml/Logon/Z3VydmFpbC5kaG90OjkxMTEwMzEx"];
     NSURL* url1 = [NSURL URLWithString:@"http://washbay.jlabs.pro/set-parking/6F3620?time=1&signal=36&station=1326&data=0000000124B571AE"];
