@@ -11,7 +11,7 @@
 
 @implementation CarPark
 
-@synthesize ID, lots, eta, whetherCarWash, whetherSurePark, whetherValetParking, distance, description, debugDescription, color;
+@synthesize ID, lots, eta, whetherCarWash, whetherSurePark, whetherValetParking, distance, description, debugDescription, color, carparkArray;
 
 - (id) init
 {
@@ -33,16 +33,17 @@
 {
     if ((self = [super init])) {
         self.name = aName;
-        self.ID = carParkId;
-        self.eta = aEta;
-        self.lots = aLots;
+        self.ID = 4;//carParkId;
+        self.eta = 20;//aEta;
+        self.lots = 200;//aLots;
         self.latitude = aLatitude;
         self.longitude = aLongitude;
         self.whetherCarWash = aWhetherCarWash;
         self.whetherValetParking = aWhetherValetParking;
         self.whetherSurePark = aWhetherSurePark;
         self.distance = 0.0;
-
+        self.carparkArray = [[NSMutableArray alloc] init];
+        
         [[AppDelegate getAppDelegate] addObserver:self forKeyPath:@"location" options:NSKeyValueObservingOptionNew context:NULL];
     }
     
@@ -52,63 +53,99 @@
 
 - (float) latitude
 {
-    PFGeoPoint *geoPoint = (PFGeoPoint *)self[@"locationG"];
-    return geoPoint.latitude;
+    //    PFGeoPoint *geoPoint = (PFGeoPoint *)self[@"locationG"];
+    //    return geoPoint.latitude;
+    float rr = _latitude;
+    return rr;
 }
 
 - (float) longitude
 {
-    return ((PFGeoPoint *)self[@"locationG"]).longitude;
+    //    return ((PFGeoPoint *)self[@"locationG"]).longitude;
+    return _longitude;
 }
 
-- (void) setLongitude:(float)longitude{
-    
-}
-
-- (void) setLatitude:(float)longitude{
-    
-}
+//- (void) setLongitude:(float)longitude{
+//
+//}
+//
+//- (void) setLatitude:(float)longitude{
+//
+//}
 - (NSString *)name
 {
-    return [NSString stringWithFormat:@"%@ %@", self[@"blkNo"], self[@"stName"]];
+    //    return [NSString stringWithFormat:@"%@ %@", self[@"blkNo"], self[@"stName"]];
+    
+    NSString* strReturn = @"";
+    NSString* strBlkNo = @"";
+    NSString* strName = @"";
+    for (int i = 0; i < [carparkArray count]; i++ )
+    {
+        NSMutableDictionary* dictionary = (NSMutableDictionary*)[carparkArray objectAtIndex:i];
+        if (dictionary != nil)
+        {
+            if (dictionary[@"blkNo"])
+            {
+                strBlkNo = dictionary[@"blkNo"];
+            }
+            if (dictionary[@"stName"])
+            {
+                strName = dictionary[@"stName"];
+            }
+        }
+    }
+    strReturn = [NSString stringWithFormat:@"%@ %@", strBlkNo, strName];
+    
+    return strReturn;
 }
 
 - (void) setName:(NSString *)name
 {
-    self[@"stName"] = name;
+    //    self[@"stName"] = name;
+    for (int i = 0; i < [carparkArray count]; i++ )
+    {
+        NSMutableDictionary* dictionary = (NSMutableDictionary*)[carparkArray objectAtIndex:i];
+        if (dictionary != nil)
+        {
+            if (dictionary[@"stName"])
+            {
+                dictionary[@"stName"] = name;
+            }
+        }
+    }
 }
 
 - (NSString *) description {
-    return self.name;
+    NSString* strNama = self.name;
+    return strNama;
 }
 
 
 - (NSString *) getOccupancyText {
-    NSString *occupancyText = [NSString stringWithFormat:@"%@ %d wash bays", self[@"machineType"], [self[@"noOfWashBays"] intValue]];
-//    NSDate *today = [NSDate date];
-//    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-//    [dateFormat setDateFormat:@"HH"];
-//    NSString *dateString = [dateFormat stringFromDate:today];
-//    NSLog(@"hours: %@", dateString);
-//    int hours = [dateString intValue];
-//    
-//    [dateFormat setDateFormat:@"mm"];
-//    dateString = [dateFormat stringFromDate:today];
-//    NSLog(@"minutes: %@", dateString);
-//    int minutes = [dateString intValue];
-//
-//    UIColor *color = [self getParkingAvailabilityColorForHours:hours andWhetherHalfPast:minutes>30];
-//    if ([color isEqual:[AppDelegate getGreenColor]]) {
-//        occupancyText = @"Water-I-Vac Low Occupancy";
-//    }
-//    else if ([color isEqual:[AppDelegate getRedColor]]) {
-//        occupancyText = @"Water-I-Vac High Occupancy";
-//    }
-//    else if ([color isEqual:[AppDelegate getAmberColor]]) {
-//        occupancyText = @"Water-I-Vac Medium Occupancy";
-//    }
+    //    NSString *occupancyText = [NSString stringWithFormat:@"%@ %d wash bays", self[@"machineType"], [self[@"noOfWashBays"] intValue]];
     
-    return occupancyText;
+    //    return occupancyText;
+    NSString* strReturn = @"";
+    NSString* strMachine = @"";
+    NSString* strNoOfWashBays = @"";
+    for (int i = 0; i < [carparkArray count]; i++ )
+    {
+        NSMutableDictionary* dictionary = (NSMutableDictionary*)[carparkArray objectAtIndex:i];
+        if (dictionary != nil)
+        {
+            if (dictionary[@"machineType"])
+            {
+                strMachine = dictionary[@"machineType"];
+            }
+            if (dictionary[@"noOfWashBays"])
+            {
+                strNoOfWashBays = dictionary[@"noOfWashBays"];
+            }
+        }
+    }
+    strReturn = [NSString stringWithFormat:@"%@ %@ wash bays", strMachine, strNoOfWashBays];
+    return strReturn;
+    
 }
 
 - (NSString *) getDetailLabelText {
@@ -119,7 +156,7 @@
 {
     if ([keyPath isEqualToString:@"location"]) {
         CLLocation *location = (CLLocation *)[change objectForKey:NSKeyValueChangeNewKey];
-        if ((NSNull *)location != [NSNull null]) {
+        if (location != NULL) {
             self.distance = [location distanceFromLocation:[[CLLocation alloc] initWithLatitude:self.latitude longitude:self.longitude]];
             self.distance /= 1000;
         }
@@ -166,7 +203,7 @@
     if (hours == hoursNow && (minutesNow>29)==whetherHalfPast) {
         whetherCurrentTime = true;
     }
-
+    
     if ([self.name isEqualToString:CarParkAmara]) {
         switch (hours) {
             case 0:
@@ -520,7 +557,7 @@
                 returnColor = [AppDelegate getGreenColor];
                 break;
         }
-
+        
         if (whetherCurrentTime) {
             if ([returnColor isEqual:[AppDelegate getGreenColor]]) {
                 self.lots = 203;
@@ -597,7 +634,7 @@
                 }
             }
                 break;
-
+                
             case 16:
             case 22:
             case 23:

@@ -6,12 +6,12 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "JET ICONsmall-1.png",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x",
-      "filename" : "Vacuum_icon.png"
+      "scale" : "3x"
     }
   ],
   "info" : {

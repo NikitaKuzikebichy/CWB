@@ -14,6 +14,10 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+#import <AFNetworking/AFNetworking.h>
+#import <AFNetworking/AFHTTPSessionManager.h>
+#import <AFNetworking/AFURLRequestSerialization.h>
+
 #define NUMBER_OF_SECTIONS 3
 #define AVAILABILE_SERVICES 0
 #define CURRENT_SECTION_NUMBER 1
@@ -39,7 +43,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
     
     self.title = [NSString stringWithFormat:@"Wash Bay @ %@", self.selectedCarPark.name];
     
@@ -47,7 +51,7 @@
     
     self.timeArray = [[NSMutableArray alloc] init];
     self.colorsArray = [[NSMutableArray alloc] init];
-
+    
     [self.timeArray addObject:@"Loading..."];
     [self.colorsArray addObject:[UIColor clearColor]];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -57,18 +61,18 @@
             [self.tableView reloadData];
         });
     });
-
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         sleep(4);
-
+        
         self.liveAvailability = @"61";
         [self.timeArray removeAllObjects];
         [self.colorsArray removeAllObjects];
-
+        
         NSDate *today = [NSDate date];
         NSDate *tempDate = [NSDate date];
         tempDate = [tempDate dateByAddingTimeInterval:1800];
-
+        
         NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
         [dateFormat setDateFormat:@"dd"];
         while ([[dateFormat stringFromDate:tempDate] isEqualToString:[dateFormat stringFromDate:today]]) {
@@ -102,7 +106,7 @@
     [self.redViewInFooterView setBackgroundColor:[AppDelegate getRedColor]];
     [self.greenViewInFooterView setBackgroundColor:[AppDelegate getGreenColor]];
     [self.amberViewInFooterView setBackgroundColor:[AppDelegate getAmberColor]];
-
+    
     CALayer *layer = [self.redViewInFooterView layer];
     [layer setCornerRadius:3.0];
     [layer setMasksToBounds:YES];
@@ -112,7 +116,7 @@
     layer = [self.amberViewInFooterView layer];
     [layer setCornerRadius:3.0];
     [layer setMasksToBounds:YES];
-
+    
     UIView *view = [[UIView alloc] init];
     //[view setBackgroundColor:[UIColor colorWithRed:217.0/255.0 green:204.0/255.0 blue:185.0/255.0 alpha:1.0]];
     [view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
@@ -161,8 +165,24 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    NSMutableDictionary* dictionary = [_selectedCarPark.carparkArray objectAtIndex:0];
     if (section == AVAILABILE_SERVICES) {
-        return [_selectedCarPark[@"hasWater"] boolValue] + [_selectedCarPark[@"hasVacuum"] boolValue] + [_selectedCarPark[@"hasJet"] boolValue];
+        int nHasWater = 0;
+        int nHasVacuum = 0;
+        int nHasJet = 0;
+        if ([dictionary[@"hasWater"]  isEqual: @"true"])
+        {
+            nHasWater = 1;
+        }
+        if ([dictionary[@"hasVacuum"]  isEqual: @"true"])
+        {
+            nHasVacuum = 1;
+        }
+        if ([dictionary[@"hasJet"]  isEqual: @"true"])
+        {
+            nHasJet = 1;
+        }
+        return nHasWater + nHasVacuum + nHasJet;
     }
     if (section == CURRENT_SECTION_NUMBER) {
         return 1;
@@ -179,8 +199,9 @@
 
 - (NSString *) tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
+    NSMutableDictionary* dictionary = [_selectedCarPark.carparkArray objectAtIndex:0];
     if (section == AVAILABILE_SERVICES) {
-        return [NSString stringWithFormat:@"Services on %@:", _selectedCarPark[@"machineType"]];
+        return [NSString stringWithFormat:@"Services on %@:", dictionary[@"machineType"]];
     }
     if (section == CURRENT_SECTION_NUMBER) {
         return @"Currently Available BAYS:";
@@ -210,6 +231,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSMutableDictionary* dictionary = [_selectedCarPark.carparkArray objectAtIndex:0];
     if (indexPath.section == AVAILABILE_SERVICES) {
         UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:@"ServicesAvailabilityCell"];
         
@@ -225,30 +247,30 @@
         }
         
         cell.accessoryView.tag = indexPath.row;
-
+        
         if (indexPath.row == 0) {
-            if ([_selectedCarPark[@"hasWater"] boolValue]) {
-                cell.textLabel.text = [NSString stringWithFormat:@"%d cents for %@", [_selectedCarPark[@"WaterCents"] intValue], _selectedCarPark[@"waterAmount"]];
+            if ([dictionary[@"hasWater"] isEqualToString:@"true"]) {
+                cell.textLabel.text = [NSString stringWithFormat:@"%d cents for %@", [dictionary[@"WaterCents"] intValue], dictionary[@"waterAmount"]];
                 cell.imageView.image = [UIImage imageNamed:@"Water_icon"];
             }
         }
         else if (indexPath.row == 1) {
-            if ([_selectedCarPark[@"hasWater"] boolValue]) {
-                if ([_selectedCarPark[@"hasVacuum"] boolValue]) {
-                    cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [_selectedCarPark[@"VacuumDollar"] floatValue], _selectedCarPark[@"vacuumAmount"] ];
+            if ([dictionary[@"hasWater"] isEqualToString:@"true"]) {
+                if ([dictionary[@"hasVacuum"] boolValue]) {
+                    cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [dictionary[@"VacuumDollar"] floatValue], dictionary[@"vacuumAmount"] ];
                     cell.imageView.image = [UIImage imageNamed:@"Vacuum_icon"];
                 }
             }
             else {
-                if ([_selectedCarPark[@"hasJet"] boolValue]) {
-                    cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [_selectedCarPark[@"jetDollar"] floatValue], _selectedCarPark[@"jetAmount"]];
+                if ([dictionary[@"hasJet"] isEqualToString:@"true"]) {
+                    cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [dictionary[@"jetDollar"] floatValue], dictionary[@"jetAmount"]];
                     cell.imageView.image = [UIImage imageNamed:@"Jet_icon"];
                 }
             }
         }
         else {
-            if ([_selectedCarPark[@"hasJet"] boolValue]) {
-                cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [_selectedCarPark[@"jetDollar"] floatValue], _selectedCarPark[@"jetAmount"]];
+            if ([dictionary[@"hasJet"] isEqualToString:@"true"]) {
+                cell.textLabel.text = [NSString stringWithFormat:@"$%g for %@", [dictionary[@"jetDollar"] floatValue], dictionary[@"jetAmount"]];
                 cell.imageView.image = [UIImage imageNamed:@"Jet_icon"];
             }
         }
@@ -257,7 +279,7 @@
         
         return cell;
     }
-
+    
     if (indexPath.section == CURRENT_SECTION_NUMBER) {
         UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:@"CurrentAvailabilityCell"];
         
@@ -269,7 +291,7 @@
         
         cell.textLabel.text = @"Current Availability";
         
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [self.selectedCarPark[@"availableBays"] intValue]];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [dictionary[@"availableBays"] intValue]];
         
         return cell;
     }
@@ -289,21 +311,12 @@
         
         cell.timeLabel.text = [self.timeArray objectAtIndex:indexPath.row];
         [cell.colorView setBackgroundColor:[self.colorsArray objectAtIndex:indexPath.row]];
-
+        
         return cell;
     }
     
     else if (indexPath.section == PREBOOK_SECTION_NUMBER) {
-//        UITableViewCell *cell1 = [aTableView dequeueReusableCellWithIdentifier:@"PrebookCell"];
-//        
-//        if (cell1 == nil) {
-//            cell1 = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"PrebookCell"];
-//        }
-//        
-//        cell1.textLabel.text = @"Prebook";
-//        cell1.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-//        
-//        return cell1;
+        
     }
     
     return nil;
@@ -315,77 +328,166 @@
     return YES;
 }
 
-/*
- // Override to support rearranging the table view.
- - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
- {
- }
- */
-
-/*
- // Override to support conditional rearranging of the table view.
- - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
- {
- // Return NO if you do not want the item to be re-orderable.
- return YES;
- }
- */
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
 }
 
 - (void) activateButtonTapped:(UIButton *)sender {
+    NSMutableDictionary* dictionary = [_selectedCarPark.carparkArray objectAtIndex:0];
     sender.enabled = false;
     NSString *device = @"w";
     if (sender.tag == 0) {
-        if ([_selectedCarPark[@"hasWater"] boolValue]) {
+        if ([dictionary[@"hasWater"] isEqualToString:@"true"]) {
         }
     }
     else if (sender.tag == 1) {
-        if ([_selectedCarPark[@"hasWater"] boolValue]) {
-            if ([_selectedCarPark[@"hasVacuum"] boolValue]) {
+        if ([dictionary[@"hasWater"] isEqualToString:@"true"]) {
+            if ([dictionary[@"hasVacuum"] isEqualToString:@"true"]) {
                 device = @"v";
             }
         }
         else {
-            if ([_selectedCarPark[@"hasJet"] boolValue]) {
+            if ([dictionary[@"hasJet"] isEqualToString:@"true"]) {
                 device = @"j";
             }
         }
     }
     else {
-        if ([_selectedCarPark[@"hasJet"] boolValue]) {
+        if ([dictionary[@"hasJet"] isEqualToString:@"true"]) {
             device = @"j";
         }
     }
-
+    //    NSString* URL = @"washbay.jlabs.pro/set-parking/6F2DE7?time=11-21-2016&signal=65&station=1326&data=05423E0000000000";
+    //    NSString* URL = @"b.strij.net/inc?id=6F2DE7&time=1&signal=65&station=1326&data=05423E0000000000";
+    //    NSString* URL = @"http://washbay.jlabs.pro/set-parking/inc?id=6F2DE7&time=1&signal=65&station=1326&data=05423E0000000000";
+    //    NSString* donelink = @"https://b.strij.net/api/sendmessage/?modem=6F2DE7?&message= 05423E0000000000&key=0s3w8f0hggufbqsz1h7316qc16ohiovqylsasb6o82470o79jlm7zztk6pqscv3l";
     
-    PFPush *push = [[PFPush alloc] init];
+    NSString* URL = @"";
+    //    AFHTTPSessionManager *operationmanager = [AFHTTPSessionManager manager];
+    //    operationmanager.responseSerializer=[AFJSONResponseSerializer serializer];
+    //
+    //    [operationmanager POST:URL parameters:NULL progress:^(NSProgress * _Nonnull uploadProgress) {
+    //        NSLog(@"uploading");
+    //    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    //        NSLog(@"sucess");
+    //    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    //        NSLog(@"fail");
+    //    }];
+    //
+    //
+    //    //    NSString* URLGET = @"http://washbay.jlabs.pro/set-parking/inc?id=6F2DE7&time=1&signal=65&station=1326&data=05423E0000000000";
+    //    [operationmanager GET:URL parameters:NULL progress:^(NSProgress * _Nonnull downloadProgress) {
+    //        NSLog(@"uploading");
+    //    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    //        NSLog(@"sucess");
+    //    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    //        NSLog(@"fail");
+    //    }];
+    //    [operationmanager POST:URL parameters:postdatadictionary success:^(AFHTTPRequestOperation *operation, id responseObject)
+    //     {
+    //         [drk hide];
+    //
+    //         NSLog(@" +++++>> in post api success ");
+    //
+    //         NSDictionary *responsedictionary = (NSDictionary *)responseObject;
+    //
+    //         [self.delegate performSelector:responseselector withObject:responsedictionary];
+    //
+    //     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    //         [drk hide];
+    //
+    //         NSLog(@" +++++>> in post api Failer %@",error.localizedDescription);
+    //
+    //         if([operation responseObject] != nil)
+    //         {
+    //             [self.delegate performSelector:responseselector withObject:[operation responseObject]];
+    //         }
+    //         else
+    //         {
+    //             UIAlertView *alert =[[UIAlertView alloc] initWithTitle:@"Wotto" message:@"Internet Connection Failed!" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+    //             [alert show];
+    //         }
+    //
+    //     }];
     
-
-    [push setMessage:[NSString stringWithFormat:@"%@,%@", _selectedCarPark.objectId, device]];
-    NSLog(@"%@", [NSString stringWithFormat:@"%@,%@", _selectedCarPark.objectId, device]);
-    NSError *error = nil;
-    [push sendPush:&error];
+    //    FIRDatabaseReference *ref = [[FIRDatabase database] reference];
+    //    NSMutableDictionary* dictionaryFire = [[NSMutableDictionary alloc] init];
+    //    [[[ref child:@"CarWashBay"] child:[NSString stringWithFormat:@"object %d", _selectedCarPark.ID]] setValue:dictionaryFire];
     
-    if (error == nil) {
-    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Activation sent." message:@"Please wait for a few seconds." preferredStyle:UIAlertControllerStyleAlert];
-    [controller addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        
-    }]];
-    [self presentViewController:controller
-                       animated:true completion:nil];
-    }
-    else {
-        UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Something went wrong" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
-        [controller addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            
-        }]];
-        [self presentViewController:controller
-                           animated:true completion:nil];
-    }
+    NSURL* url = [NSURL URLWithString:@"https://www.imonnit.com/xml/SensorSendControlCommand/Z3VydmFpbC5kaG90OjkxMTEwMzEx?sensorID=158120&relayIndex=1&state=2&seconds=1"]; //&relayIndex=0&state=2&seconds=1
+    NSURL* urlAuthToken = [NSURL URLWithString:@"https://www.imonnit.com/xml/GetAuthToken?username=gurvail.dhot&password=91110311"];
+    NSURL* urllogon = [NSURL URLWithString:@"https://www.imonnit.com/xml/Logon/Z3VydmFpbC5kaG90OjkxMTEwMzEx"];
+    NSURL* url1 = [NSURL URLWithString:@"http://washbay.jlabs.pro/set-parking/6F3620?time=1&signal=36&station=1326&data=0000000124B571AE"];
+    
+    [self getToken:urlAuthToken :urllogon : url];
+    
+    //    NSError *error = nil;
+    //    if (error == nil) {
+    //        UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Activation sent." message:@"Please wait for a few seconds." preferredStyle:UIAlertControllerStyleAlert];
+    //        [controller addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    //
+    //        }]];
+    //        [self presentViewController:controller
+    //                           animated:true completion:nil];
+    //    }
+    //    else {
+    //        UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Something went wrong" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+    //        [controller addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    //
+    //        }]];
+    //        [self presentViewController:controller
+    //                           animated:true completion:nil];
+    //    }
     sender.enabled = true;
+}
+
+-(void)getToken:(NSURL*) urlAuto :(NSURL*) urlLogon :(NSURL*) url
+{
+    NSURLRequest* request = [NSURLRequest requestWithURL:urlAuto];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+                               
+                               if (data.length > 0 && connectionError == nil )
+                               {
+                                   [self logon:urlLogon :url];
+                               }
+                           }];
+}
+
+-(void)logon:(NSURL*) urlLogon : (NSURL*) url
+{
+    NSURLRequest* request = [NSURLRequest requestWithURL:urlLogon];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+                               
+                               if (data.length > 0 && connectionError == nil )
+                               {
+                                   [self sensorControll:url];
+                               }
+                           }];
+}
+
+-(void)sensorControll:(NSURL*) url
+{
+    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+                               
+                               if (data.length > 0 && connectionError == nil )
+                               {
+                                   NSLog(@"%@", [data description]);
+                                   UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Activation sent." message:@"Please wait for a few seconds." preferredStyle:UIAlertControllerStyleAlert];
+                                   [controller addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                       
+                                   }]];
+                                   [self presentViewController:controller
+                                                      animated:true completion:nil];
+                               }
+                           }];
 }
 
 - (void) preBookButtonClicked:(UIButton *) sender

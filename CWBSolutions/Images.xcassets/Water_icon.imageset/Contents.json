@@ -10,8 +10,8 @@
     },
     {
       "idiom" : "universal",
-      "scale" : "3x",
-      "filename" : "Water_icon.png"
+      "filename" : "Water_icon.png",
+      "scale" : "3x"
     }
   ],
   "info" : {

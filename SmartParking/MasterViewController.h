@@ -8,9 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import <FirebaseDatabase/FirebaseDatabase.h>
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 @class DetailViewController;
 
 @interface MasterViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate>
-
+// [START define_database_reference]
+@property (strong, nonatomic) FIRDatabaseReference *ref;
+// [END define_database_reference]
+//@property (strong, nonatomic) FirebaseTableViewDataSource *dataSource;
 @property (strong, nonatomic) DetailViewController *detailViewController;
 @end
